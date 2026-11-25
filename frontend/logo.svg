@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="105 112 210 207" fill="none" color="#a97a18" role="img" aria-labelledby="title">
+  <title id="title">AutoNeed</title>
+  <g stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M154 195 190 124 216 169" stroke-width="4"/>
+    <path d="M207 184v61m0-61 52 61V178" stroke-width="4"/>
+    <path d="M118 227c36-27 66-46 101-53 31-7 60-8 87-3" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <text x="210" y="286" text-anchor="middle" fill="currentColor" font-family="Georgia,'Times New Roman',serif" font-size="34" letter-spacing="8">AutoNeed</text>
+  <path d="M192 309h36" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

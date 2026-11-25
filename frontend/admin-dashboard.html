@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard · Auto Need</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { background: var(--paper); color: var(--ink); font-family: "DM Sans", sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+
+    .adm-topbar { position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:14px; height:60px; padding:0 max(3%,calc((100vw - 1300px)/2)); border-bottom:1px solid var(--line); background:#f8f7f3eb; backdrop-filter:blur(14px); }
+    .dark .adm-topbar { background:#11100eeb; }
+    .adm-topbar-brand { display:flex; align-items:center; gap:8px; text-decoration:none; flex-shrink:0; }
+    .adm-topbar-title { font-family:"Playfair Display",serif; font-size:15px; font-weight:700; color:#75571e; }
+    .dark .adm-topbar-title { color:#e4bd5f; }
+    .adm-topbar-title span { color:var(--gold-dark); }
+    .adm-badge { padding:3px 9px; border:1px solid var(--gold); border-radius:20px; color:var(--gold-dark); font-size:9px; font-weight:700; letter-spacing:.08em; }
+    .adm-topbar-gap { flex:1; }
+    .adm-topbar-btn { padding:7px 14px; border:1px solid var(--line); border-radius:20px; background:transparent; color:var(--muted); cursor:pointer; font:inherit; font-size:10px; font-weight:600; text-decoration:none; transition:color .15s,border-color .15s; }
+    .adm-topbar-btn:hover { color:var(--ink); border-color:var(--gold); }
+    .adm-logout-btn { padding:7px 14px; border:1px solid #e8b2b2; border-radius:20px; background:transparent; color:#b74e40; cursor:pointer; font:inherit; font-size:10px; font-weight:600; }
+    .adm-logout-btn:hover { background:#fff2f2; }
+    .dark .adm-logout-btn:hover { background:#3a1a18; }
+    .adm-theme-btn { padding:7px 14px; border:1px solid var(--line); border-radius:20px; background:transparent; color:var(--muted); cursor:pointer; font:inherit; font-size:10px; }
+    .adm-theme-btn:hover { color:var(--gold-dark); }
+    .adm-language { height:31px; padding:0 9px; border:1px solid var(--line); border-radius:18px; background:var(--white); color:var(--muted); font:inherit; font-size:10px; cursor:pointer; }
+
+    .adm-body { display:grid; grid-template-columns:220px 1fr; flex:1; max-width:1300px; width:100%; margin:0 auto; padding:0 max(3%,calc((100vw - 1300px)/2)); }
+    .adm-sidebar { padding:24px 0; border-right:1px solid var(--line); }
+    .adm-nav { display:flex; flex-direction:column; gap:2px; }
+    .adm-nav-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border:none; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font:inherit; font-size:12px; font-weight:500; text-align:left; transition:background .15s,color .15s; }
+    .adm-nav-item:hover { background:var(--soft); color:var(--ink); }
+    .adm-nav-item.active { background:linear-gradient(135deg,#f0c34e22,#dca32322); color:var(--gold-dark); font-weight:700; }
+    .adm-nav-icon { font-size:16px; width:20px; text-align:center; }
+
+    .adm-content { padding:28px 0 48px 28px; min-width:0; }
+    .adm-page { display:none; }
+    .adm-page.active { display:block; }
+    .adm-page-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:24px; }
+    .adm-page-heading h1 { margin:0; font-family:"Playfair Display",serif; font-size:clamp(22px,3vw,30px); }
+    .adm-page-heading p { margin:5px 0 0; color:var(--muted); font-size:11px; }
+
+    .adm-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    .adm-stat-card { position:relative; padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--white); }
+    .adm-stat-label { color:var(--muted); font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; }
+    .adm-stat-val { display:block; margin-top:6px; font-family:"Playfair Display",serif; font-size:28px; font-weight:700; }
+    .adm-stat-icon { position:absolute; top:14px; right:14px; color:var(--gold-dark); font-size:18px; }
+
+    .adm-analytics { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(250px,1fr); gap:14px; margin-bottom:18px; }
+    .adm-chart-card { min-width:0; padding:18px 20px 14px; border:1px solid var(--line); border-radius:12px; background:var(--white); }
+    .adm-chart-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px; }
+    .adm-chart-head h3 { margin:0; font-family:"Playfair Display",serif; font-size:16px; }
+    .adm-chart-head p { margin:4px 0 0; color:var(--muted); font-size:10px; }
+    .adm-chart-total { color:var(--gold-dark); font-family:"Playfair Display",serif; font-size:21px; font-weight:700; white-space:nowrap; }
+    .adm-chart-svg { display:block; width:100%; height:auto; overflow:visible; }
+    .adm-chart-grid { stroke:var(--line); stroke-dasharray:4 5; stroke-width:1; }
+    .adm-chart-label { fill:var(--muted); font:10px "DM Sans",sans-serif; }
+    .adm-donut-wrap { display:flex; align-items:center; justify-content:center; gap:18px; min-height:170px; }
+    .adm-donut { width:142px; height:142px; flex:0 0 auto; transform:rotate(-90deg); }
+    .adm-donut circle { fill:none; stroke-width:18; }
+    .adm-donut-track { stroke:var(--soft); }
+    .adm-donut-segment { stroke-linecap:round; }
+    .adm-chart-legend { display:grid; gap:9px; min-width:0; }
+    .adm-legend-item { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:10px; }
+    .adm-legend-item strong { margin-left:auto; color:var(--ink); font-size:10px; }
+    .adm-legend-dot { width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+
+    .adm-card { padding:20px 22px; border:1px solid var(--line); border-radius:12px; background:var(--white); margin-bottom:18px; }
+    .adm-card h3 { margin:0 0 16px; font-family:"Playfair Display",serif; font-size:17px; }
+
+    .adm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; }
+    .adm-form-grid .full { grid-column:1/-1; }
+    .adm-label { display:grid; gap:5px; color:var(--muted); font-size:10px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; }
+    .adm-label input,.adm-label select,.adm-label textarea { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:7px; background:var(--paper); color:var(--ink); font:inherit; font-size:12px; outline:none; transition:border-color .15s; }
+    .adm-label input:focus,.adm-label select:focus,.adm-label textarea:focus { border-color:var(--gold); }
+    .adm-label textarea { resize:vertical; min-height:68px; }
+
+    .adm-submit-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:0 22px; height:40px; border:none; border-radius:8px; background:linear-gradient(135deg,#f0c34e,#dca323); color:#211807; cursor:pointer; font:inherit; font-size:12px; font-weight:700; box-shadow:0 4px 14px #b784201e; transition:transform .13s; }
+    .adm-submit-btn:hover { transform:translateY(-1px); }
+
+    .adm-table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--white); }
+    table.adm-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .adm-table thead th { padding:12px 14px; border-bottom:1px solid var(--line); background:var(--soft); color:var(--muted); font-size:9px; font-weight:700; letter-spacing:.08em; text-align:left; white-space:nowrap; text-transform:uppercase; }
+    .adm-table tbody tr { border-bottom:1px solid var(--line); transition:background .12s; }
+    .adm-table tbody tr:last-child { border-bottom:none; }
+    .adm-table tbody tr:hover { background:var(--soft); }
+    .adm-table td { padding:10px 14px; vertical-align:middle; }
+    .adm-product-thumb { width:46px; height:46px; border-radius:7px; object-fit:cover; background:var(--soft); flex-shrink:0; }
+    .adm-product-cell { display:flex; align-items:center; gap:10px; }
+    .adm-product-name { font-weight:600; font-size:12px; }
+    .adm-product-sku { color:var(--muted); font-size:9px; margin-top:2px; }
+    .adm-price-cell { color:var(--gold-dark); font-family:"Playfair Display",serif; font-size:14px; font-weight:700; white-space:nowrap; }
+    .adm-cat-badge { display:inline-block; padding:3px 9px; border-radius:12px; background:var(--soft); color:var(--muted); font-size:9px; font-weight:600; white-space:nowrap; }
+    .adm-source-badge { display:inline-block; padding:3px 8px; border-radius:10px; font-size:9px; font-weight:700; }
+    .adm-source-badge.admin { background:#e9b63b22; color:var(--gold-dark); }
+    .adm-source-badge.catalog { background:var(--soft); color:var(--muted); }
+    .adm-action-row { display:flex; gap:6px; }
+    .adm-edit-btn { padding:5px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--muted); cursor:pointer; font:inherit; font-size:10px; transition:color .13s,border-color .13s; }
+    .adm-edit-btn:hover { color:var(--gold-dark); border-color:var(--gold); }
+    .adm-del-btn { padding:5px 10px; border:1px solid #e8b2b2; border-radius:6px; background:transparent; color:#b74e40; cursor:pointer; font:inherit; font-size:10px; }
+    .adm-del-btn:hover { background:#fff2f2; }
+    .dark .adm-del-btn:hover { background:#3a1a18; }
+    .adm-empty { padding:40px; text-align:center; color:var(--muted); font-size:12px; }
+    .adm-toast { position:fixed; z-index:999; bottom:22px; right:22px; padding:12px 18px; border:1px solid #d4bd7b; border-radius:9px; background:var(--white); box-shadow:0 8px 30px #281e0e22; font-size:12px; animation:fadeUp .22s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+    @media(max-width:860px) {
+      .adm-body { grid-template-columns:1fr; }
+      .adm-sidebar { border-right:none; border-bottom:1px solid var(--line); padding:14px 0; }
+      .adm-nav { flex-direction:row; flex-wrap:wrap; padding:0 4px; }
+      .adm-nav-item { padding:8px 12px; font-size:11px; }
+      .adm-content { padding:20px 0 40px; }
+      .adm-stats { grid-template-columns:repeat(2,1fr); }
+      .adm-analytics { grid-template-columns:1fr; }
+      .adm-form-grid { grid-template-columns:1fr; }
+      .adm-form-grid .full { grid-column:1; }
+    }
+  </style>
+  <script>
+    // Кирүү текшерүүсү — сессия жок болсо login'ге кайтарат
+    if (!sessionStorage.getItem("autoneed-admin-auth")) {
+      window.location.replace("/admin/index.html");
+    }
+    try {
+      if (localStorage.getItem("autoneed-theme") === "dark") {
+        document.documentElement.classList.add("dark-preload");
+        const a = () => document.body?.classList.add("dark");
+        if (document.body) a();
+        else new MutationObserver((_,o) => { if(document.body){a();o.disconnect();} }).observe(document.documentElement,{childList:true});
+      }
+    } catch(_) {}
+  </script>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="adm-topbar">
+    <a class="adm-topbar-brand" href="/index.html">
+      <span class="brand-mark" style="width:34px;height:34px;font-size:15px">A<span>N</span></span>
+      <span class="adm-topbar-title">Auto<span>Need</span></span>
+    </a>
+    <span class="adm-badge">ADMIN</span>
+    <div class="adm-topbar-gap"></div>
+    <select class="adm-language" id="adminLanguage" aria-label="Тилди тандоо"><option value="ky">KY</option><option value="ru">RU</option><option value="en">EN</option></select>
+    <button class="adm-theme-btn" id="themeBtn" type="button" aria-label="Теманы өзгөртүү">☀</button>
+    <a href="/index.html" class="adm-topbar-btn" id="backStoreBtn">← Дүкөнгө</a>
+    <button class="adm-logout-btn" id="logoutBtn">Чыгуу</button>
+  </header>
+
+  <!-- BODY -->
+  <div class="adm-body">
+
+    <!-- SIDEBAR -->
+    <nav class="adm-sidebar">
+      <div class="adm-nav">
+        <button class="adm-nav-item active" data-page="dashboard"><span class="adm-nav-icon">◈</span> Dashboard</button>
+        <button class="adm-nav-item" data-page="products"><span class="adm-nav-icon">◇</span> Товары</button>
+        <button class="adm-nav-item" data-page="orders"><span class="adm-nav-icon">▤</span> Заказы</button>
+        <button class="adm-nav-item" data-page="bookings"><span class="adm-nav-icon">◷</span> Брондор</button>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="adm-content">
+
+      <!-- Dashboard -->
+      <div class="adm-page active" id="page-dashboard">
+        <div class="adm-page-heading"><div><h1>Dashboard</h1><p>Дүкөндүн жалпы абалы</p></div></div>
+        <div class="adm-stats" id="statsGrid"></div>
+        <div class="adm-analytics">
+          <section class="adm-chart-card">
+            <div class="adm-chart-head"><div><h3>Заказдардын динамикасы</h3><p>Акыркы 7 күндөгү заказдар</p></div><strong class="adm-chart-total" id="ordersWeekTotal">0</strong></div>
+            <div id="ordersChart"></div>
+          </section>
+          <section class="adm-chart-card">
+            <div class="adm-chart-head"><div><h3>Товарлардын түрү</h3><p>Категория боюнча бөлүштүрүү</p></div></div>
+            <div class="adm-donut-wrap"><svg class="adm-donut" id="categoryChart" viewBox="0 0 120 120" role="img" aria-label="Товар категориялары"></svg><div class="adm-chart-legend" id="categoryLegend"></div></div>
+          </section>
+        </div>
+        <div class="adm-card"><h3>Акыркы кошулган товарлар</h3><div id="recentProductsList"></div></div>
+      </div>
+
+      <!-- Products -->
+      <div class="adm-page" id="page-products">
+        <div class="adm-page-heading"><div><h1>Товары</h1><p>Каталогду башкаруу</p></div></div>
+        <div class="adm-card">
+          <h3 id="formTitle">Жаңы товар кошуу</h3>
+          <form id="productForm" onsubmit="return false;">
+            <input type="hidden" id="editId">
+            <div class="adm-form-grid">
+              <label class="adm-label">Аталышы *<input name="name" id="fName" required placeholder="Тормозной диск Brembo"></label>
+              <label class="adm-label">Артикул / OEM *<input name="sku" id="fSku" required placeholder="BR-2246"></label>
+              <label class="adm-label">Категория
+                <select name="category" id="fCategory">
+                  <option value="brakes">Тормоз системасы</option>
+                  <option value="electrical">Электрика</option>
+                  <option value="consumables">Расходники</option>
+                  <option value="suspension">Подвеска</option>
+                  <option value="engine">Кыймылдаткыч</option>
+                </select>
+              </label>
+              <label class="adm-label">Баасы (сом) *<input name="price" id="fPrice" type="number" min="1" required placeholder="5000"></label>
+              <label class="adm-label">Шайкештик<input name="compatibility" id="fCompat" placeholder="Toyota Camry"></label>
+              <label class="adm-label">Фото URL<input name="image" id="fImage" type="url" placeholder="https://..."></label>
+              <label class="adm-label full">Сүрөттөмө<textarea name="description" id="fDesc"></textarea></label>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+              <button class="adm-submit-btn" type="submit" id="submitBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Товар кошуу
+              </button>
+              <button class="adm-topbar-btn" type="button" id="cancelEditBtn" style="display:none">Жокко чыгаруу</button>
+            </div>
+          </form>
+        </div>
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead><tr><th>Товар</th><th>Категория</th><th>Баасы</th><th>Шайкештик</th><th>Булак</th><th>Аракет</th></tr></thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <div class="adm-page" id="page-orders">
+        <div class="adm-page-heading"><div><h1>Заказдар</h1><p>Кардарлардын буйрутмалары</p></div></div>
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead><tr><th>№</th><th>Кардар</th><th>Товарлар</th><th>Сумма</th><th>Дата</th></tr></thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bookings -->
+      <div class="adm-page" id="page-bookings">
+        <div class="adm-page-heading"><div><h1>Брондор</h1><p>Активдүү жана аяктаган брондор</p></div></div>
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead><tr><th>Товар</th><th>Телефон</th><th>Аяктоо</th><th>Статус</th></tr></thead>
+            <tbody id="bookingsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /adm-content -->
+  </div><!-- /adm-body -->
+
+  <script src="/admin-i18n.js"></script>
+  <script>
+    const AUTH_KEY = "autoneed-admin-auth";
+    const adminCopy={
+      ky:{back:"← Дүкөнгө",logout:"Чыгуу",dashboard:"Башкаруу панели",dashboardDesc:"Дүкөндүн жалпы абалы",products:"Товарлар",orders:"Заказдар",bookings:"Брондор",ordersDynamics:"Заказдардын динамикасы",last7Orders:"Акыркы 7 күндөгү заказдар",productTypes:"Товарлардын түрү",byCategory:"Категория боюнча бөлүштүрүү",recentProducts:"Акыркы кошулган товарлар",productManage:"Каталогду башкаруу",newProduct:"Жаңы товар кошуу",theme:"Теманы өзгөртүү"},
+      ru:{back:"← В магазин",logout:"Выйти",dashboard:"Панель управления",dashboardDesc:"Общее состояние магазина",products:"Товары",orders:"Заказы",bookings:"Бронирования",ordersDynamics:"Динамика заказов",last7Orders:"Заказы за последние 7 дней",productTypes:"Категории товаров",byCategory:"Распределение по категориям",recentProducts:"Недавно добавленные товары",productManage:"Управление каталогом",newProduct:"Добавить товар",theme:"Изменить тему"},
+      en:{back:"← Back to store",logout:"Log out",dashboard:"Dashboard",dashboardDesc:"Store overview",products:"Products",orders:"Orders",bookings:"Bookings",ordersDynamics:"Order activity",last7Orders:"Orders in the last 7 days",productTypes:"Product categories",byCategory:"Distribution by category",recentProducts:"Recently added products",productManage:"Catalog management",newProduct:"Add product",theme:"Toggle theme"}
+    };
+    function applyAdminLanguage(lang=localStorage.getItem("autoneed-language")||"ru"){
+      const selected=adminCopy[lang]?lang:"ru",t=adminCopy[selected];
+      localStorage.setItem("autoneed-language",selected);document.documentElement.lang=selected;
+      document.getElementById("adminLanguage").value=selected;
+      document.getElementById("backStoreBtn").textContent=t.back;document.getElementById("logoutBtn").textContent=t.logout;
+      document.querySelectorAll(".adm-nav-item[data-page]").forEach(btn=>{const icon=btn.querySelector(".adm-nav-icon").outerHTML;btn.innerHTML=icon+`<span>${t[btn.dataset.page]||btn.dataset.page}</span>`;});
+      const set=(selector,value)=>{const el=document.querySelector(selector);if(el)el.textContent=value;};
+      set("#page-dashboard .adm-page-heading h1",t.dashboard);set("#page-dashboard .adm-page-heading p",t.dashboardDesc);
+      set("#page-dashboard .adm-chart-card:first-child h3",t.ordersDynamics);set("#page-dashboard .adm-chart-card:first-child p",t.last7Orders);
+      set("#page-dashboard .adm-chart-card:last-child h3",t.productTypes);set("#page-dashboard .adm-chart-card:last-child p",t.byCategory);set("#page-dashboard .adm-card h3",t.recentProducts);
+      set("#page-products .adm-page-heading h1",t.products);set("#page-products .adm-page-heading p",t.productManage);set("#formTitle",t.newProduct);
+      set("#page-orders .adm-page-heading h1",t.orders);set("#page-bookings .adm-page-heading h1",t.bookings);
+      document.getElementById("themeBtn").setAttribute("aria-label",t.theme);window.AdminI18n?.apply(selected);renderDashboard();
+    }
+
+    // ── Theme ──
+    const themeBtn = document.getElementById("themeBtn");
+    const isDark = () => document.body.classList.contains("dark");
+    function syncTheme() { themeBtn.textContent = isDark() ? "☀" : "☾"; }
+    syncTheme();
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("autoneed-theme", isDark() ? "dark" : "light");
+      syncTheme();
+    });
+    document.getElementById("adminLanguage").addEventListener("change",e=>applyAdminLanguage(e.target.value));
+
+    // ── Logout ──
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      window.location.href = "/admin/index.html";
+    });
+
+    // ── Sidebar nav ──
+    document.querySelectorAll(".adm-nav-item[data-page]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".adm-nav-item").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".adm-page").forEach(p => p.classList.remove("active"));
+        document.getElementById(`page-${btn.dataset.page}`).classList.add("active");
+        if (btn.dataset.page === "dashboard") renderDashboard();
+        if (btn.dataset.page === "products")  renderProductsTable();
+        if (btn.dataset.page === "orders")    renderOrders();
+        if (btn.dataset.page === "bookings")  renderBookings();
+      });
+    });
+
+    // ── Helpers ──
+    const LS  = { get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}, put:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+    const money = n => `${new Intl.NumberFormat("ru-RU").format(n)} сом`;
+    const esc   = s => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    const CAT   = {brakes:"Тормоз системасы",electrical:"Электрика",consumables:"Расходники",suspension:"Подвеска",engine:"Кыймылдаткыч"};
+    const BASE  = [
+      {id:"p8",name:"Тормозной диск Brembo",sku:"BR-2246",category:"brakes",price:5340,compatibility:"Toyota Corolla, Camry",image:"https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=200&q=80"},
+      {id:"p4",name:"Свечи зажигания NGK Laser",sku:"EL-7710",category:"electrical",price:2150,compatibility:"Hyundai Solaris, Kia Rio",image:"https://images.unsplash.com/photo-1600661653561-629509216228?auto=format&fit=crop&w=200&q=80"},
+      {id:"p1",name:"Масляный фильтр Bosch Premium",sku:"OF-2048",category:"consumables",price:890,compatibility:"Toyota Camry, Corolla, RAV4",image:"https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=200&q=80"},
+      {id:"p3",name:"Амортизатор передний KYB",sku:"SU-3041",category:"suspension",price:6890,compatibility:"Toyota Camry 2012–2017",image:"https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=200&q=80"},
+      {id:"p2",name:"Тормозные колодки Akebono",sku:"BR-1182",category:"brakes",price:4250,compatibility:"Honda Accord, CR-V, Civic",image:"https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=200&q=80"},
+      {id:"p9",name:"Аккумулятор Varta Blue",sku:"EL-8821",category:"electrical",price:9200,compatibility:"Большинство легковых автомобилей",image:"https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=200&q=80"},
+      {id:"p5",name:"Воздушный фильтр Mann-Filter",sku:"OF-3529",category:"consumables",price:1350,compatibility:"Volkswagen Polo, Golf",image:"https://images.unsplash.com/photo-1600661653561-629509216228?auto=format&fit=crop&w=200&q=80"},
+      {id:"p6",name:"Комплект ремня ГРМ Gates",sku:"EN-4107",category:"engine",price:7980,compatibility:"Hyundai Tucson, Elantra",image:"https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=200&q=80"},
+    ];
+    let adminProducts = LS.get("autoneed-admin-products",[]);
+    const saveAP = () => LS.put("autoneed-admin-products", adminProducts);
+    function showToast(msg){ const el=document.createElement("div"); el.className="adm-toast"; el.textContent=msg; document.body.append(el); setTimeout(()=>el.remove(),2800); }
+
+    // ── Init ──
+    renderDashboard();
+    renderProductsTable();
+    renderOrders();
+    renderBookings();
+    applyAdminLanguage();
+
+    // ── Dashboard ──
+    function renderDashboard(){
+      const orders=LS.get("autoneed-orders",[]); const bk=LS.get("autoneed-bookings",[]).filter(b=>b.until>Date.now());
+      document.getElementById("statsGrid").innerHTML=[
+        {label:"Каталогдогу товарлар",val:8+adminProducts.length,icon:"◇"},
+        {label:"Админ кошкон товарлар",val:adminProducts.length,icon:"✦"},
+        {label:"Активдүү брондор",val:bk.length,icon:"◷"},
+        {label:"Заказдар",val:orders.length,icon:"▤"},
+      ].map(s=>`<div class="adm-stat-card"><div class="adm-stat-label">${s.label}</div><strong class="adm-stat-val">${s.val}</strong><span class="adm-stat-icon">${s.icon}</span></div>`).join("");
+      renderAnalytics(orders);
+      const r=[...adminProducts].reverse().slice(0,5);
+      document.getElementById("recentProductsList").innerHTML=r.length
+        ?r.map(p=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${esc(p.image)}" alt="" style="width:46px;height:46px;border-radius:7px;object-fit:cover;background:var(--soft)" onerror="this.src='https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=100&q=70'"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12px">${esc(p.name)}</div><div style="color:var(--muted);font-size:9px;margin-top:2px">${esc(p.sku)}</div></div><div style="color:var(--gold-dark);font-family:'Playfair Display',serif;font-size:14px;font-weight:700">${money(p.price)}</div></div>`).join("")
+        :`<div style="padding:30px;text-align:center;color:var(--muted);font-size:12px">Азырынча товар кошулган жок</div>`;
+    }
+
+    function renderAnalytics(orders){
+      const today=new Date();
+      const days=Array.from({length:7},(_,i)=>{const d=new Date(today);d.setHours(0,0,0,0);d.setDate(d.getDate()-(6-i));return d;});
+      const counts=days.map(day=>orders.filter(o=>{const date=new Date(o.created);return !Number.isNaN(date.getTime())&&date.toDateString()===day.toDateString();}).length);
+      const max=Math.max(4,...counts),x0=34,x1=520,y0=18,y1=164,w=x1-x0,h=y1-y0;
+      const points=counts.map((value,i)=>`${(x0+(w/6)*i).toFixed(1)},${(y1-(value/max)*h).toFixed(1)}`);
+      const poly=points.join(" "),area=`${x0},${y1} ${poly} ${x1},${y1}`;
+      document.getElementById("ordersWeekTotal").textContent=counts.reduce((a,b)=>a+b,0);
+      document.getElementById("ordersChart").innerHTML=`<svg class="adm-chart-svg" viewBox="0 0 540 202" role="img" aria-label="Акыркы жети күндөгү заказдар">${[0,.5,1].map(t=>{const y=y1-h*t;return `<line class="adm-chart-grid" x1="${x0}" y1="${y}" x2="${x1}" y2="${y}"/><text class="adm-chart-label" x="4" y="${y+3}">${Math.round(max*t)}</text>`;}).join("")}<defs><linearGradient id="ordersFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--gold)" stop-opacity=".32"/><stop offset="1" stop-color="var(--gold)" stop-opacity=".02"/></linearGradient></defs><polygon points="${area}" fill="url(#ordersFill)"/><polyline points="${poly}" fill="none" stroke="var(--gold-dark)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${points.map(p=>{const [x,y]=p.split(",");return `<circle cx="${x}" cy="${y}" r="3.5" fill="var(--white)" stroke="var(--gold-dark)" stroke-width="2"/>`;}).join("")}${days.map((d,i)=>`<text class="adm-chart-label" text-anchor="middle" x="${x0+(w/6)*i}" y="190">${d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"})}</text>`).join("")}</svg>`;
+
+      const products=[...BASE,...adminProducts];
+      const categories=[{key:"brakes",label:"Тормоз системасы",color:"#dca323"},{key:"electrical",label:"Электрика",color:"#7787aa"},{key:"consumables",label:"Расходниктер",color:"#8b9b61"},{key:"suspension",label:"Подвеска",color:"#d17957"},{key:"engine",label:"Кыймылдаткыч",color:"#a98ab5"}].map(c=>({...c,value:products.filter(p=>p.category===c.key).length}));
+      const total=categories.reduce((sum,c)=>sum+c.value,0)||1,circ=2*Math.PI*43;let offset=0;
+      document.getElementById("categoryChart").innerHTML=`<circle class="adm-donut-track" cx="60" cy="60" r="43"/>${categories.filter(c=>c.value).map(c=>{const length=c.value/total*circ,gap=3;const mark=`<circle class="adm-donut-segment" cx="60" cy="60" r="43" stroke="${c.color}" stroke-dasharray="${Math.max(0,length-gap)} ${circ-length+gap}" stroke-dashoffset="${-offset}"/>`;offset+=length;return mark;}).join("")}<text x="60" y="57" text-anchor="middle" fill="var(--ink)" style="font:700 19px 'Playfair Display',serif;transform:rotate(90deg);transform-origin:60px 60px">${products.length}</text><text x="60" y="72" text-anchor="middle" fill="var(--muted)" style="font:9px 'DM Sans',sans-serif;transform:rotate(90deg);transform-origin:60px 60px">товар</text>`;
+      document.getElementById("categoryLegend").innerHTML=categories.filter(c=>c.value).map(c=>`<div class="adm-legend-item"><span class="adm-legend-dot" style="background:${c.color}"></span>${c.label}<strong>${c.value}</strong></div>`).join("")||`<span class="adm-chart-label">Товар жок</span>`;
+    }
+
+    // ── Products ──
+    function renderProductsTable(){
+      const tbody=document.getElementById("productsTableBody");
+      const all=[...adminProducts.map(p=>({...p,_s:"admin"})),...BASE.map(p=>({...p,_s:"catalog"}))];
+      tbody.innerHTML=all.map(p=>`<tr>
+        <td><div class="adm-product-cell"><img class="adm-product-thumb" src="${esc(p.image||"")}" alt="" onerror="this.src='https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=100&q=70'"><div><div class="adm-product-name">${esc(p.name)}</div><div class="adm-product-sku">${esc(p.sku)}</div></div></div></td>
+        <td><span class="adm-cat-badge">${esc(CAT[p.category]||p.category)}</span></td>
+        <td class="adm-price-cell">${money(p.price)}</td>
+        <td style="color:var(--muted);font-size:11px">${esc(p.compatibility||"—")}</td>
+        <td><span class="adm-source-badge ${p._s}">${p._s==="admin"?"ADMIN":"BASE"}</span></td>
+        <td><div class="adm-action-row">${p._s==="admin"
+          ?`<button class="adm-edit-btn" data-edit="${esc(p.id)}">✎ Оңдоо</button><button class="adm-del-btn" data-del="${esc(p.id)}">✕ Өчүрүү</button>`
+          :`<span style="color:var(--muted);font-size:10px">базалык</span>`}</div></td>
+      </tr>`).join("");
+      tbody.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>deleteProduct(b.dataset.del)));
+      tbody.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>enterEditMode(adminProducts.find(p=>p.id===b.dataset.edit))));
+    }
+
+    document.getElementById("productForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      const eid=document.getElementById("editId").value;
+      const d=Object.fromEntries(new FormData(e.currentTarget));
+      if(!d.name||!d.sku||!d.price){showToast("❌ Аталышы, артикул жана баасын жазыңыз");return;}
+      const p={id:eid||`adm-${Date.now()}`,name:d.name.trim(),sku:d.sku.trim(),category:d.category,price:Number(d.price),compatibility:(d.compatibility||"").trim(),image:(d.image||"").trim(),description:(d.description||"").trim(),rating:0,baseReviews:0,inStock:true};
+      if(eid){adminProducts=adminProducts.map(x=>x.id===eid?p:x);showToast("✓ Товар жаңыланды");cancelEditMode();}
+      else{adminProducts.unshift(p);showToast("✓ Товар кошулду");e.currentTarget.reset();}
+      saveAP();renderProductsTable();renderDashboard();
+    });
+
+    function deleteProduct(id){
+      if(!confirm("Бул товарды өчүрөсүзбү?"))return;
+      adminProducts=adminProducts.filter(p=>p.id!==id);
+      saveAP();renderProductsTable();renderDashboard();showToast("✓ Товар өчүрүлдү");
+    }
+    function enterEditMode(p){
+      if(!p)return;
+      document.getElementById("editId").value=p.id;
+      document.getElementById("fName").value=p.name;
+      document.getElementById("fSku").value=p.sku;
+      document.getElementById("fCategory").value=p.category;
+      document.getElementById("fPrice").value=p.price;
+      document.getElementById("fCompat").value=p.compatibility||"";
+      document.getElementById("fImage").value=p.image||"";
+      document.getElementById("fDesc").value=p.description||"";
+      document.getElementById("formTitle").textContent="Товарды оңдоо";
+      document.getElementById("submitBtn").textContent="Сактоо";
+      document.getElementById("cancelEditBtn").style.display="";
+      document.getElementById("page-products").scrollIntoView({behavior:"smooth",block:"start"});
+    }
+    function cancelEditMode(){
+      document.getElementById("editId").value="";
+      document.getElementById("productForm").reset();
+      document.getElementById("formTitle").textContent="Жаңы товар кошуу";
+      document.getElementById("submitBtn").innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Товар кошуу`;
+      document.getElementById("cancelEditBtn").style.display="none";
+    }
+    document.getElementById("cancelEditBtn").addEventListener("click",cancelEditMode);
+
+    // ── Orders ──
+    function renderOrders(){
+      const o=LS.get("autoneed-orders",[]);
+      document.getElementById("ordersTableBody").innerHTML=o.length
+        ?[...o].reverse().map(r=>`<tr><td style="font-weight:700">#${esc(r.number)}</td><td><div style="font-weight:600">${esc(r.name)}</div><div style="color:var(--muted);font-size:10px">${esc(r.phone||"")}</div></td><td style="color:var(--muted);font-size:11px;max-width:200px">${(r.items||[]).map(i=>esc(`${i.name||i.id} ×${i.qty}`)).join(", ")}</td><td class="adm-price-cell">${money(r.total)}</td><td style="color:var(--muted);font-size:10px">${r.created?new Date(r.created).toLocaleDateString("ru-RU"):"—"}</td></tr>`).join("")
+        :`<tr><td colspan="5"><div class="adm-empty">Заказдар жок</div></td></tr>`;
+    }
+
+    // ── Bookings ──
+    function renderBookings(){
+      const bk=LS.get("autoneed-bookings",[]);
+      document.getElementById("bookingsTableBody").innerHTML=bk.length
+        ?[...bk].reverse().map(b=>{const a=b.until>Date.now();return`<tr><td style="font-weight:600">${esc(b.name||b.id)}</td><td>${esc(b.phone||"—")}</td><td style="color:var(--muted);font-size:10px">${isNaN(b.until)?"—":new Date(Number(b.until)).toLocaleString("ru-RU")}</td><td><span style="padding:3px 10px;border-radius:12px;font-size:9px;font-weight:700;background:${a?"#e9f3e0":"var(--soft)"};color:${a?"#668043":"var(--muted)"}">${a?"АКТИВДҮҮ":"АЯКТАДЫ"}</span></td></tr>`;}).join("")
+        :`<tr><td colspan="4"><div class="adm-empty">Брондор жок</div></td></tr>`;
+    }
+  </script>
+</body>
+</html>

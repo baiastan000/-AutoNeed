@@ -62,7 +62,7 @@
     .dark .msg-info { background:#1a2e14; border-color:#3a6228; color:#8ecf64; }
     .msg-info.show { display:block; }
 
-    #otpInput { text-align:center; font-size:26px; font-weight:700; letter-spacing:.3em; }
+    #otpInput { text-align:center; font-size:26px; font-weight:700; letter-spacing:.3em; padding-right:42px !important; }
 
     .otp-timer { margin-top:10px; text-align:center; color:var(--muted); font-size:10px; }
     .otp-timer b { color:var(--gold-dark); }
@@ -107,6 +107,24 @@
     .adm-stat-label { color:var(--muted); font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; }
     .adm-stat-val { display:block; margin-top:6px; font-family:"Playfair Display",serif; font-size:28px; font-weight:700; }
     .adm-stat-icon { position:absolute; top:14px; right:14px; color:var(--gold-dark); font-size:18px; }
+    .adm-analytics { display:grid; grid-template-columns:minmax(0,1.8fr) minmax(250px,1fr); gap:14px; margin-bottom:18px; }
+    .adm-chart-card { min-width:0; padding:18px 20px 14px; border:1px solid var(--line); border-radius:12px; background:var(--white); }
+    .adm-chart-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px; }
+    .adm-chart-head h3 { margin:0; font-family:"Playfair Display",serif; font-size:16px; }
+    .adm-chart-head p { margin:4px 0 0; color:var(--muted); font-size:10px; }
+    .adm-chart-total { color:var(--gold-dark); font-family:"Playfair Display",serif; font-size:21px; font-weight:700; }
+    .adm-chart-svg { display:block; width:100%; height:auto; }
+    .adm-chart-grid { stroke:var(--line); stroke-dasharray:4 5; stroke-width:1; }
+    .adm-chart-label { fill:var(--muted); font:10px "DM Sans",sans-serif; }
+    .adm-donut-wrap { display:flex; align-items:center; justify-content:center; gap:18px; min-height:170px; }
+    .adm-donut { width:142px; height:142px; flex:0 0 auto; transform:rotate(-90deg); }
+    .adm-donut circle { fill:none; stroke-width:18; }
+    .adm-donut-track { stroke:var(--soft); }
+    .adm-donut-segment { stroke-linecap:round; }
+    .adm-chart-legend { display:grid; gap:9px; min-width:0; }
+    .adm-legend-item { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:10px; }
+    .adm-legend-item strong { margin-left:auto; color:var(--ink); font-size:10px; }
+    .adm-legend-dot { width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
     .adm-card { padding:20px 22px; border:1px solid var(--line); border-radius:12px; background:var(--white); margin-bottom:18px; }
     .adm-card h3 { margin:0 0 16px; font-family:"Playfair Display",serif; font-size:17px; }
     .adm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; }
@@ -144,6 +162,7 @@
     @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
     .adm-theme-btn { position:fixed; top:16px; right:16px; display:grid; width:34px; height:34px; place-items:center; border:1px solid var(--line); border-radius:50%; background:var(--white); cursor:pointer; font-size:16px; color:var(--muted); z-index:100; }
     .adm-theme-btn:hover { color:var(--gold-dark); }
+    .adm-language { height:31px; padding:0 9px; border:1px solid var(--line); border-radius:18px; background:var(--white); color:var(--muted); font:inherit; font-size:10px; cursor:pointer; }
     @media(max-width:860px) {
       .adm-body { grid-template-columns:1fr; }
       .adm-sidebar { border-right:none; border-bottom:1px solid var(--line); padding:14px 0; }
@@ -151,6 +170,7 @@
       .adm-nav-item { padding:8px 12px; font-size:11px; }
       .adm-content { padding:20px 0 40px; }
       .adm-stats { grid-template-columns:repeat(2,1fr); }
+      .adm-analytics { grid-template-columns:1fr; }
       .adm-form-grid { grid-template-columns:1fr; }
       .adm-form-grid .full { grid-column:1; }
     }
@@ -171,7 +191,7 @@
   <button class="adm-theme-btn" id="themeBtn" aria-label="Toggle theme">☀</button>
 
   <!-- ══ LOGIN ══ -->
-  <div class="view" id="view-login">
+  <div class="view active" id="view-login">
     <div class="login-top">
       <a class="login-brand" href="/index.html">
         <span class="brand-mark">A<span>N</span></span>
@@ -183,14 +203,14 @@
 
     <div class="login-card">
 
-      <!-- STEP 1: Login + Password -->
+      <!-- STEP 1: Gmail + Password -->
       <div class="step active" id="step-login">
         <h2>Кириш · Войти</h2>
-        <p>Логин жана сырсөздү жазыңыз — Telegram'га 6 орундуу код жөнөтүлөт</p>
-        <form id="loginForm" novalidate>
+        <p>Gmail жана сырсөздү жазыңыз — Telegram'га 6 орундуу код жөнөтүлөт</p>
+        <form id="loginForm" novalidate onsubmit="return false;">
           <div class="field-group">
-            <label for="fUser">Логин</label>
-            <input id="fUser" type="text" placeholder="admin" autocomplete="username">
+            <label for="fEmail">Gmail дарек</label>
+            <input id="fEmail" type="text" placeholder="sizdin@gmail.com" autocomplete="email">
           </div>
           <div class="field-group">
             <label for="fPass">Сырсөз · Пароль</label>
@@ -214,10 +234,16 @@
       <div class="step" id="step-otp">
         <h2>Код жазыңыз</h2>
         <p id="otpSubText">Telegram'га 6 орундуу код жөнөтүлдү</p>
-        <form id="otpForm" novalidate>
+        <form id="otpForm" novalidate onsubmit="return false;">
           <div class="field-group">
             <label for="otpInput">Кириш коду</label>
-            <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+            <div class="password-wrap">
+              <input id="otpInput" type="password" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="one-time-code">
+              <button type="button" class="eye-btn" data-target="otpInput" aria-label="Көрсөт">
+                <svg class="eye-icon eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                <svg class="eye-icon eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
           <div class="msg-error" id="otpError"></div>
           <div class="msg-info"  id="otpInfo"></div>
@@ -248,7 +274,9 @@
       <span class="adm-badge">ADMIN</span>
       <div class="adm-topbar-gap"></div>
       <a href="/index.html" class="adm-topbar-btn">← Дүкөн</a>
-      <button class="adm-logout-btn" id="logoutBtn">Чыгуу · Выйти</button>
+      <select class="adm-language" id="adminLanguage" aria-label="Тилди тандоо"><option value="ky">KY</option><option value="ru">RU</option><option value="en">EN</option></select>
+      <button class="adm-topbar-btn" id="dashboardThemeBtn" type="button" aria-label="Теманы өзгөртүү">☀</button>
+      <button class="adm-logout-btn" id="logoutBtn">Чыгуу</button>
     </header>
     <div class="adm-body">
       <nav class="adm-sidebar">
@@ -263,6 +291,10 @@
         <div class="adm-page active" id="page-dashboard">
           <div class="adm-page-heading"><div><h1>Dashboard</h1><p>Дүкөндүн жалпы абалы</p></div></div>
           <div class="adm-stats" id="statsGrid"></div>
+          <div class="adm-analytics">
+            <section class="adm-chart-card"><div class="adm-chart-head"><div><h3>Заказдардын динамикасы</h3><p>Акыркы 7 күндөгү заказдар</p></div><strong class="adm-chart-total" id="ordersWeekTotal">0</strong></div><div id="ordersChart"></div></section>
+            <section class="adm-chart-card"><div class="adm-chart-head"><div><h3>Товарлардын түрү</h3><p>Категория боюнча бөлүштүрүү</p></div></div><div class="adm-donut-wrap"><svg class="adm-donut" id="categoryChart" viewBox="0 0 120 120" role="img" aria-label="Товар категориялары"></svg><div class="adm-chart-legend" id="categoryLegend"></div></div></section>
+          </div>
           <div class="adm-card"><h3>Акыркы кошулган товарлар</h3><div id="recentProductsList"></div></div>
         </div>
         <div class="adm-page" id="page-products">
@@ -324,16 +356,35 @@
     </div>
   </div>
 
+  <script src="/admin-i18n.js"></script>
   <script>
-    const API = "http://localhost:3001/api/admin";
+    const API = "/api/admin";
     const AUTH_KEY = "autoneed-admin-auth";
+    const adminCopy={ky:{back:"← Дүкөнгө",logout:"Чыгуу",dashboard:"Башкаруу панели",dashboardDesc:"Дүкөндүн жалпы абалы",products:"Товарлар",orders:"Заказдар",bookings:"Брондор",ordersDynamics:"Заказдардын динамикасы",last7Orders:"Акыркы 7 күндөгү заказдар",productTypes:"Товарлардын түрү",byCategory:"Категория боюнча бөлүштүрүү",recentProducts:"Акыркы кошулган товарлар",productManage:"Каталогду башкаруу",newProduct:"Жаңы товар кошуу",theme:"Теманы өзгөртүү"},ru:{back:"← В магазин",logout:"Выйти",dashboard:"Панель управления",dashboardDesc:"Общее состояние магазина",products:"Товары",orders:"Заказы",bookings:"Бронирования",ordersDynamics:"Динамика заказов",last7Orders:"Заказы за последние 7 дней",productTypes:"Категории товаров",byCategory:"Распределение по категориям",recentProducts:"Недавно добавленные товары",productManage:"Управление каталогом",newProduct:"Добавить товар",theme:"Изменить тему"},en:{back:"← Back to store",logout:"Log out",dashboard:"Dashboard",dashboardDesc:"Store overview",products:"Products",orders:"Orders",bookings:"Bookings",ordersDynamics:"Order activity",last7Orders:"Orders in the last 7 days",productTypes:"Product categories",byCategory:"Distribution by category",recentProducts:"Recently added products",productManage:"Catalog management",newProduct:"Add product",theme:"Toggle theme"}};
+    function applyAdminLanguage(lang=localStorage.getItem("autoneed-language")||"ru"){
+      const selected=adminCopy[lang]?lang:"ru",t=adminCopy[selected];localStorage.setItem("autoneed-language",selected);document.documentElement.lang=selected;
+      document.getElementById("adminLanguage").value=selected;
+      const links=document.querySelectorAll("#view-dashboard .adm-topbar-btn");if(links[0])links[0].textContent=t.back;
+      document.getElementById("logoutBtn").textContent=t.logout;
+      document.querySelectorAll("#view-dashboard .adm-nav-item[data-page]").forEach(btn=>{const icon=btn.querySelector(".adm-nav-icon").outerHTML;btn.innerHTML=icon+`<span>${t[btn.dataset.page]||btn.dataset.page}</span>`;});
+      const set=(selector,value)=>{const el=document.querySelector(`#view-dashboard ${selector}`);if(el)el.textContent=value;};
+      set("#page-dashboard .adm-page-heading h1",t.dashboard);set("#page-dashboard .adm-page-heading p",t.dashboardDesc);set("#page-dashboard .adm-chart-card:first-child h3",t.ordersDynamics);set("#page-dashboard .adm-chart-card:first-child p",t.last7Orders);set("#page-dashboard .adm-chart-card:last-child h3",t.productTypes);set("#page-dashboard .adm-chart-card:last-child p",t.byCategory);set("#page-dashboard .adm-card h3",t.recentProducts);set("#page-products .adm-page-heading h1",t.products);set("#page-products .adm-page-heading p",t.productManage);set("#formTitle",t.newProduct);set("#page-orders .adm-page-heading h1",t.orders);set("#page-bookings .adm-page-heading h1",t.bookings);
+      dashboardThemeBtn.setAttribute("aria-label",t.theme);window.AdminI18n?.apply(selected);renderDashboard();
+    }
 
     // ── Theme ──
     const themeBtn = document.getElementById("themeBtn");
     const isDark = () => document.body.classList.contains("dark");
-    function syncTheme() { themeBtn.textContent = isDark() ? "☀" : "☾"; }
+    const dashboardThemeBtn = document.getElementById("dashboardThemeBtn");
+    function syncTheme() { themeBtn.textContent = isDark() ? "☀" : "☾"; if(dashboardThemeBtn) dashboardThemeBtn.textContent = themeBtn.textContent; }
     syncTheme();
     themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("autoneed-theme", isDark() ? "dark" : "light");
+      syncTheme();
+    });
+    document.getElementById("adminLanguage").addEventListener("change",e=>applyAdminLanguage(e.target.value));
+    dashboardThemeBtn?.addEventListener("click", () => {
       document.body.classList.toggle("dark");
       localStorage.setItem("autoneed-theme", isDark() ? "dark" : "light");
       syncTheme();
@@ -363,10 +414,10 @@
 
     // ── Init ──
     if (sessionStorage.getItem(AUTH_KEY) === "1") {
-      showView("view-dashboard"); initDashboard();
+      showView("view-dashboard");
     } else {
       showView("view-login");
-      document.getElementById("fUser").focus();
+      document.getElementById("fEmail").focus();
     }
 
     // ── OTP timer ──
@@ -389,12 +440,18 @@
     // ── STEP 1: Send OTP ──
     document.getElementById("loginForm").addEventListener("submit", async e => {
       e.preventDefault();
-      const login    = document.getElementById("fUser").value.trim();
+      const email    = document.getElementById("fEmail").value.trim();
       const password = document.getElementById("fPass").value;
       const errEl    = document.getElementById("loginError");
       const btn      = document.getElementById("sendCodeBtn");
 
       errEl.classList.remove("show");
+
+      if (!email || !email.includes("@")) {
+        errEl.textContent = "Туура Gmail дарек жазыңыз.";
+        errEl.classList.add("show"); return;
+      }
+
       btn.disabled = true;
       btn.textContent = "Жөнөтүлүүдө...";
 
@@ -402,7 +459,7 @@
         const res  = await fetch(`${API}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ login, password }),
+          body: JSON.stringify({ email, password }),
         });
         const data = await res.json();
 
@@ -412,11 +469,13 @@
         } else {
           _otpExpiry = Date.now() + 5 * 60 * 1000;
 
-          // Dev mode — backend token орнотулмаса код alert менен чыгат
+          // Dev mode: Telegram орнотулмаса код alert менен чыгат
           if (data.dev && data.code) {
-            alert(`[DEV] Telegram орнотулган эмес.\nКод: ${data.code}`);
+            alert(`⚠️ DEV MODE\nTelegram орнотулган эмес.\n\nКод: ${data.code}\n\nTelegram орнотуп .env га токениңизди жазыңыз.`);
           }
 
+          document.getElementById("otpSubText").textContent =
+            `📱 Telegram'га 6 орундуу код жөнөтүлдү`;
           document.getElementById("otpInput").value = "";
           document.getElementById("otpError").classList.remove("show");
           document.getElementById("otpInfo").classList.remove("show");
@@ -425,7 +484,7 @@
           document.getElementById("otpInput").focus();
         }
       } catch {
-        errEl.textContent = "Backend иштеп жатабы? http://localhost:3001 текшериңиз.";
+        errEl.textContent = "Backend'ке туташа алган жокпуз. Серверди иштетип, баракты жаңыртыңыз.";
         errEl.classList.add("show");
       }
 
@@ -456,8 +515,8 @@
         } else {
           clearInterval(_timerInterval);
           sessionStorage.setItem(AUTH_KEY, "1");
-          showView("view-dashboard");
-          initDashboard();
+          // Өзүнчө dashboard бетке redirect
+          window.location.href = "/admin-dashboard.html";
         }
       } catch {
         errEl.textContent = "Backend менен байланыш жок.";
@@ -468,7 +527,8 @@
     // ── Resend ──
     document.getElementById("resendBtn").addEventListener("click", () => {
       showStep("step-login");
-      document.getElementById("loginForm").dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+      // Auto-trigger login form again
+      setTimeout(() => document.getElementById("loginForm").requestSubmit(), 100);
     });
 
     document.getElementById("backBtn").addEventListener("click", () => {
@@ -482,9 +542,9 @@
       clearInterval(_timerInterval);
       showView("view-login");
       showStep("step-login");
-      document.getElementById("fUser").value = "";
+      document.getElementById("fEmail").value = "";
       document.getElementById("fPass").value = "";
-      document.getElementById("fUser").focus();
+      document.getElementById("fEmail").focus();
     });
 
     // ── Sidebar ──
@@ -501,7 +561,7 @@
       });
     });
 
-    function initDashboard() { renderDashboard(); renderProductsTable(); renderOrders(); renderBookings(); }
+    function initDashboard() { renderDashboard(); renderProductsTable(); renderOrders(); renderBookings(); applyAdminLanguage(); }
 
     // ── Helpers ──
     const LS  = { get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d;}catch{return d;}}, put:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
@@ -519,15 +579,30 @@
       {id:"p6",name:"Комплект ремня ГРМ Gates",sku:"EN-4107",category:"engine",price:7980,compatibility:"Hyundai Tucson, Elantra",image:"https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=200&q=80"},
     ];
     let adminProducts = LS.get("autoneed-admin-products",[]);
+    if (!Array.isArray(adminProducts)) adminProducts = [];
     const saveAP = () => LS.put("autoneed-admin-products", adminProducts);
     function showToast(msg){ const el=document.createElement("div"); el.className="adm-toast"; el.textContent=msg; document.body.append(el); setTimeout(()=>el.remove(),2800); }
 
     function renderDashboard(){
-      const orders=LS.get("autoneed-orders",[]); const bk=LS.get("autoneed-bookings",[]).filter(b=>b.until>Date.now());
+      const savedOrders=LS.get("autoneed-orders",[]), savedBookings=LS.get("autoneed-bookings",[]);
+      const orders=Array.isArray(savedOrders)?savedOrders:[], bk=(Array.isArray(savedBookings)?savedBookings:[]).filter(b=>b&&Number(b.until)>Date.now());
       document.getElementById("statsGrid").innerHTML=[{label:"Каталогдогу товарлар",val:8+adminProducts.length,icon:"◇"},{label:"Админ кошкон",val:adminProducts.length,icon:"✦"},{label:"Активдүү брондор",val:bk.length,icon:"◷"},{label:"Заказдар",val:orders.length,icon:"▤"}].map(s=>`<div class="adm-stat-card"><div class="adm-stat-label">${s.label}</div><strong class="adm-stat-val">${s.val}</strong><span class="adm-stat-icon">${s.icon}</span></div>`).join("");
+      renderAnalytics(orders);
       const r=[...adminProducts].reverse().slice(0,5);
       document.getElementById("recentProductsList").innerHTML=r.length?r.map(p=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${esc(p.image)}" alt="" class="adm-product-thumb" onerror="this.src='https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=100&q=70'"><div style="flex:1;min-width:0"><div class="adm-product-name">${esc(p.name)}</div><div class="adm-product-sku">${esc(p.sku)}</div></div><div class="adm-price-cell">${money(p.price)}</div></div>`).join(""):`<div class="adm-empty">Азырынча товар кошулган жок</div>`;
     }
+    function renderAnalytics(orders){
+      const today=new Date(),days=Array.from({length:7},(_,i)=>{const d=new Date(today);d.setHours(0,0,0,0);d.setDate(d.getDate()-(6-i));return d;});
+      const counts=days.map(day=>orders.filter(o=>{const d=new Date(o.created);return !Number.isNaN(d.getTime())&&d.toDateString()===day.toDateString();}).length);
+      const max=Math.max(4,...counts),x0=34,x1=520,y0=18,y1=164,w=x1-x0,h=y1-y0,points=counts.map((n,i)=>`${(x0+w*i/6).toFixed(1)},${(y1-n/max*h).toFixed(1)}`);
+      document.getElementById("ordersWeekTotal").textContent=counts.reduce((a,b)=>a+b,0);
+      document.getElementById("ordersChart").innerHTML=`<svg class="adm-chart-svg" viewBox="0 0 540 202" role="img" aria-label="Заказдар, акыркы жети күн">${[0,.5,1].map(t=>{const y=y1-h*t;return `<line class="adm-chart-grid" x1="${x0}" y1="${y}" x2="${x1}" y2="${y}"/><text class="adm-chart-label" x="4" y="${y+3}">${Math.round(max*t)}</text>`;}).join("")}<polyline points="${points.join(" ")}" fill="none" stroke="var(--gold-dark)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${days.map((d,i)=>`<text class="adm-chart-label" text-anchor="middle" x="${x0+w*i/6}" y="190">${d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"})}</text>`).join("")}</svg>`;
+      const products=[...BASE,...adminProducts],categories=[{key:"brakes",label:"Тормоз системасы",color:"#dca323"},{key:"electrical",label:"Электрика",color:"#7787aa"},{key:"consumables",label:"Расходниктер",color:"#8b9b61"},{key:"suspension",label:"Подвеска",color:"#d17957"},{key:"engine",label:"Кыймылдаткыч",color:"#a98ab5"}].map(c=>({...c,value:products.filter(p=>p.category===c.key).length}));
+      const total=categories.reduce((a,c)=>a+c.value,0)||1,circ=2*Math.PI*43;let offset=0;
+      document.getElementById("categoryChart").innerHTML=`<circle class="adm-donut-track" cx="60" cy="60" r="43"/>${categories.filter(c=>c.value).map(c=>{const length=c.value/total*circ,s=`<circle class="adm-donut-segment" cx="60" cy="60" r="43" stroke="${c.color}" stroke-dasharray="${Math.max(0,length-3)} ${circ-length+3}" stroke-dashoffset="${-offset}"/>`;offset+=length;return s;}).join("")}<text x="60" y="57" text-anchor="middle" fill="var(--ink)" style="font:700 19px 'Playfair Display',serif;transform:rotate(90deg);transform-origin:60px 60px">${products.length}</text>`;
+      document.getElementById("categoryLegend").innerHTML=categories.filter(c=>c.value).map(c=>`<div class="adm-legend-item"><span class="adm-legend-dot" style="background:${c.color}"></span>${c.label}<strong>${c.value}</strong></div>`).join("");
+    }
+
     function renderProductsTable(){
       const tbody=document.getElementById("productsTableBody");
       const all=[...adminProducts.map(p=>({...p,_s:"admin"})),...BASE.map(p=>({...p,_s:"catalog"}))];
@@ -547,8 +622,9 @@
     function enterEditMode(p){if(!p)return;document.getElementById("editId").value=p.id;document.getElementById("fName").value=p.name;document.getElementById("fSku").value=p.sku;document.getElementById("fCategory").value=p.category;document.getElementById("fPrice").value=p.price;document.getElementById("fCompat").value=p.compatibility||"";document.getElementById("fImage").value=p.image||"";document.getElementById("fDesc").value=p.description||"";document.getElementById("formTitle").textContent="Товарды оңдоо";document.getElementById("submitBtn").textContent="Сактоо";document.getElementById("cancelEditBtn").style.display="";}
     function cancelEditMode(){document.getElementById("editId").value="";document.getElementById("productForm").reset();document.getElementById("formTitle").textContent="Жаңы товар кошуу";document.getElementById("submitBtn").innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Товар кошуу`;document.getElementById("cancelEditBtn").style.display="none";}
     document.getElementById("cancelEditBtn").addEventListener("click",cancelEditMode);
-    function renderOrders(){const o=LS.get("autoneed-orders",[]);document.getElementById("ordersTableBody").innerHTML=o.length?[...o].reverse().map(r=>`<tr><td style="font-weight:700">#${esc(r.number)}</td><td><div style="font-weight:600">${esc(r.name)}</div><div style="color:var(--muted);font-size:10px">${esc(r.phone||"")}</div></td><td style="color:var(--muted);font-size:11px">${(r.items||[]).map(i=>esc(`${i.name||i.id} ×${i.qty}`)).join(", ")}</td><td class="adm-price-cell">${money(r.total)}</td><td style="color:var(--muted);font-size:10px">${r.created?new Date(r.created).toLocaleDateString("ru-RU"):"—"}</td></tr>`).join(""):`<tr><td colspan="5"><div class="adm-empty">Заказдар жок</div></td></tr>`;}
-    function renderBookings(){const bk=LS.get("autoneed-bookings",[]);document.getElementById("bookingsTableBody").innerHTML=bk.length?[...bk].reverse().map(b=>{const a=b.until>Date.now();return`<tr><td style="font-weight:600">${esc(b.name||b.id)}</td><td>${esc(b.phone||"—")}</td><td style="color:var(--muted);font-size:10px">${isNaN(b.until)?"—":new Date(Number(b.until)).toLocaleString("ru-RU")}</td><td><span style="padding:3px 10px;border-radius:12px;font-size:9px;font-weight:700;background:${a?"#e9f3e0":"var(--soft)"};color:${a?"#668043":"var(--muted)"}">${a?"АКТИВДҮҮ":"АЯКТАДЫ"}</span></td></tr>`;}).join(""):`<tr><td colspan="4"><div class="adm-empty">Брондор жок</div></td></tr>`;}
+    function renderOrders(){const saved=LS.get("autoneed-orders",[]),o=Array.isArray(saved)?saved:[];document.getElementById("ordersTableBody").innerHTML=o.length?[...o].reverse().map(r=>`<tr><td style="font-weight:700">#${esc(r.number)}</td><td><div style="font-weight:600">${esc(r.name)}</div><div style="color:var(--muted);font-size:10px">${esc(r.phone||"")}</div></td><td style="color:var(--muted);font-size:11px">${(Array.isArray(r.items)?r.items:[]).map(i=>esc(`${i.name||i.id} ×${i.qty}`)).join(", ")}</td><td class="adm-price-cell">${money(r.total)}</td><td style="color:var(--muted);font-size:10px">${r.created?new Date(r.created).toLocaleDateString("ru-RU"):"—"}</td></tr>`).join(""):`<tr><td colspan="5"><div class="adm-empty">Заказдар жок</div></td></tr>`;}
+    function renderBookings(){const saved=LS.get("autoneed-bookings",[]),bk=Array.isArray(saved)?saved:[];document.getElementById("bookingsTableBody").innerHTML=bk.length?[...bk].reverse().map(b=>{const active=Number(b.until)>Date.now();return`<tr><td style="font-weight:600">${esc(b.name||b.id)}</td><td>${esc(b.phone||"—")}</td><td style="color:var(--muted);font-size:10px">${isNaN(b.until)?"—":new Date(Number(b.until)).toLocaleString("ru-RU")}</td><td><span style="padding:3px 10px;border-radius:12px;font-size:9px;font-weight:700;background:${active?"#e9f3e0":"var(--soft)"};color:${active?"#668043":"var(--muted)"}">${active?"АКТИВДҮҮ":"АЯКТАДЫ"}</span></td></tr>`;}).join(""):`<tr><td colspan="4"><div class="adm-empty">Брондор жок</div></td></tr>`;}
+    if(sessionStorage.getItem(AUTH_KEY)==="1") initDashboard();
   </script>
 </body>
 </html>

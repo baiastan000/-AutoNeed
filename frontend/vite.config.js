@@ -20,6 +20,14 @@ function adminRedirectPlugin() {
           res.end(content);
           return;
         }
+        if (req.url === "/admin-dashboard" || req.url === "/admin-dashboard/") {
+          const f = path.resolve(root, "admin-dashboard.html");
+          const content = fs.readFileSync(f, "utf-8");
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.statusCode = 200;
+          res.end(content);
+          return;
+        }
         next();
       });
     },
@@ -31,6 +39,12 @@ export default defineConfig({
   plugins: [adminRedirectPlugin()],
   server: {
     fs: { strict: false },
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     rollupOptions: {
@@ -40,6 +54,7 @@ export default defineConfig({
         about:    resolve(root, "about.html"),
         contacts: resolve(root, "contacts.html"),
         admin:    resolve(root, "admin/index.html"),
+        dashboard: resolve(root, "admin-dashboard.html"),
       },
     },
   },

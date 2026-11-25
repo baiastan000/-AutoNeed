@@ -370,6 +370,135 @@ function openAdmin() {
     adminPage.innerHTML = `<section class="admin-dashboard">${dashboardContent}</section>`;
   }
 }
+const authCopy = {
+  ru: {title:"Добро пожаловать",login:"Войти",register:"Регистрация",email:"Email",password:"Пароль",newPassword:"Новый пароль",confirmPassword:"Повторите пароль",createAccount:"Создать аккаунт",forgot:"Забыли пароль?",sendCode:"Отправить код",code:"Код из письма",verifyCode:"Проверить код",resetPassword:"Изменить пароль",back:"Назад ко входу",emailSent:"Если аккаунт существует, код отправлен на почту.",passwordChanged:"Пароль изменён. Теперь войдите с новым паролем.",logout:"Выйти",signedIn:"Вы вошли как",invalidEmail:"Введите корректный email.",weakPassword:"Пароль должен содержать не менее 8 символов.",passwordMismatch:"Пароли не совпадают.",invalidCredentials:"Неверный email или пароль.",emailExists:"Этот email уже зарегистрирован.",emailConfig:"Отправка email не настроена. Обратитесь к администратору.",codeExpired:"Код истёк. Запросите новый.",invalidCode:"Неверный код.",tryLater:"Подождите минуту перед повторной отправкой.",serverError:"Сервер временно недоступен. Попробуйте позже."},
+  ky: {title:"Кош келиңиз",login:"Кирүү",register:"Катталуу",email:"Электрондук почта",password:"Сырсөз",newPassword:"Жаңы сырсөз",confirmPassword:"Сырсөздү кайталаңыз",createAccount:"Аккаунт түзүү",forgot:"Сырсөздү унуттуңузбу?",sendCode:"Код жөнөтүү",code:"Email’ге келген код",verifyCode:"Кодду текшерүү",resetPassword:"Сырсөздү өзгөртүү",back:"Кирүүгө кайтуу",emailSent:"Эгер аккаунт бар болсо, код email’ге жөнөтүлдү.",passwordChanged:"Сырсөз өзгөрдү. Жаңы сырсөз менен кириңиз.",logout:"Чыгуу",signedIn:"Аккаунт",invalidEmail:"Туура email дарегин жазыңыз.",weakPassword:"Сырсөз кеминде 8 белгиден турушу керек.",passwordMismatch:"Сырсөздөр дал келген жок.",invalidCredentials:"Email же сырсөз туура эмес.",emailExists:"Бул email катталган.",emailConfig:"Email жөнөтүү туураланган эмес. Администраторго кайрылыңыз.",codeExpired:"Коддун мөөнөтү өттү. Жаңы код сураңыз.",invalidCode:"Код туура эмес.",tryLater:"Кайра жөнөтүүдөн мурда бир мүнөт күтүңүз.",serverError:"Сервер убактылуу жеткиликсиз. Кийин аракет кылыңыз."},
+  en: {title:"Welcome",login:"Sign in",register:"Register",email:"Email",password:"Password",newPassword:"New password",confirmPassword:"Confirm password",createAccount:"Create account",forgot:"Forgot password?",sendCode:"Send code",code:"Email verification code",verifyCode:"Verify code",resetPassword:"Change password",back:"Back to sign in",emailSent:"If the account exists, a code has been sent to the email.",passwordChanged:"Password changed. Sign in with your new password.",logout:"Log out",signedIn:"Signed in as",invalidEmail:"Enter a valid email address.",weakPassword:"Password must be at least 8 characters.",passwordMismatch:"Passwords do not match.",invalidCredentials:"Incorrect email or password.",emailExists:"This email is already registered.",emailConfig:"Email delivery is not configured. Contact the administrator.",codeExpired:"Code expired. Request another.",invalidCode:"Incorrect code.",tryLater:"Wait a minute before requesting another code.",serverError:"Server temporarily unavailable. Try again later."}
+};
+
+function enhancePasswordInputs(root) {
+  root.querySelectorAll('input[type="password"]').forEach(input => {
+    if (input.parentElement?.classList.contains("password-input-wrap")) return;
+    const wrap = document.createElement("span");
+    wrap.className = "password-input-wrap";
+    input.before(wrap);
+    wrap.append(input);
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "password-visibility-toggle";
+    toggle.setAttribute("aria-label", currentLanguage === "ky" ? "Сырсөздү көрсөтүү" : currentLanguage === "en" ? "Show password" : "Показать пароль");
+    toggle.setAttribute("aria-pressed", "false");
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.7-7 10-7 10 7 10 7-3.7 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+    toggle.addEventListener("click", () => {
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      toggle.setAttribute("aria-pressed", String(show));
+      toggle.setAttribute("aria-label", show
+        ? (currentLanguage === "ky" ? "Сырсөздү жашыруу" : currentLanguage === "en" ? "Hide password" : "Скрыть пароль")
+        : (currentLanguage === "ky" ? "Сырсөздү көрсөтүү" : currentLanguage === "en" ? "Show password" : "Показать пароль"));
+    });
+    wrap.append(toggle);
+  });
+}
+
+function profileNameFromEmail(email) {
+  return String(email || "").split("@")[0].replace(/[._-]+/g, " ").trim().split(/\s+/).filter(Boolean)
+    .map(part => part.charAt(0).toLocaleUpperCase() + part.slice(1)).join(" ");
+}
+
+function openSettings() {
+  const labels = {
+    ru: { title:"Настройки", language:"Язык сайта", theme:"Оформление", light:"Светлая", dark:"Тёмная" },
+    ky: { title:"Жөндөөлөр", language:"Сайттын тили", theme:"Көрүнүшү", light:"Жарык", dark:"Караңгы" },
+    en: { title:"Settings", language:"Site language", theme:"Appearance", light:"Light", dark:"Dark" },
+  }[currentLanguage] || { title:"Настройки", language:"Язык сайта", theme:"Оформление", light:"Светлая", dark:"Тёмная" };
+  const panel = openOverlay(`<div class="panel-heading"><div><small>AUTO NEED</small><h2>${labels.title}</h2></div><button class="close-button" data-close aria-label="Close">×</button></div><section class="profile-settings standalone-settings"><label>${labels.language}<select data-settings-language><option value="ru" ${currentLanguage === "ru" ? "selected" : ""}>Русский</option><option value="ky" ${currentLanguage === "ky" ? "selected" : ""}>Кыргызча</option><option value="en" ${currentLanguage === "en" ? "selected" : ""}>English</option></select></label><label>${labels.theme}<select data-settings-theme><option value="light" ${localStorage.getItem("autoneed-theme") !== "dark" ? "selected" : ""}>${labels.light}</option><option value="dark" ${localStorage.getItem("autoneed-theme") === "dark" ? "selected" : ""}>${labels.dark}</option></select></label></section>`);
+  panel.querySelector("[data-settings-language]").addEventListener("change", event => {
+    if (event.target.value === currentLanguage) return;
+    panel.closest(".overlay").remove();
+    applyLanguage(event.target.value);
+    openSettings();
+  });
+  panel.querySelector("[data-settings-theme]").addEventListener("change", event => {
+    const dark = event.target.value === "dark";
+    document.body.classList.toggle("dark", dark);
+    document.documentElement.classList.toggle("dark-preload", dark);
+    localStorage.setItem("autoneed-theme", dark ? "dark" : "light");
+    updateThemeButtons();
+  });
+}
+
+function openAuthV2() {
+  const t = authCopy[currentLanguage] || authCopy.ru;
+  if (user?.email) {
+    const profileText = {
+      ru: { title:"Мой профиль", name:"Имя", email:"Электронная почта", phone:"Телефон", save:"Сохранить профиль", saved:"Профиль сохранён", settings:"Настройки", language:"Язык сайта", theme:"Оформление", light:"Светлая", dark:"Тёмная", logout:t.logout },
+      ky: { title:"Менин профилим", name:"Атыңыз", email:"Электрондук почта", phone:"Телефон", save:"Профилди сактоо", saved:"Профиль сакталды", settings:"Жөндөөлөр", language:"Сайттын тили", theme:"Көрүнүшү", light:"Жарык", dark:"Караңгы", logout:t.logout },
+      en: { title:"My profile", name:"Name", email:"Email", phone:"Phone", save:"Save profile", saved:"Profile saved", settings:"Settings", language:"Site language", theme:"Appearance", light:"Light", dark:"Dark", logout:t.logout },
+    }[currentLanguage] || { title:"Мой профиль", name:"Имя", email:"Электронная почта", phone:"Телефон", save:"Сохранить профиль", saved:"Профиль сохранён", settings:"Настройки", language:"Язык сайта", theme:"Оформление", light:"Светлая", dark:"Тёмная", logout:t.logout };
+    const displayName = user.name && user.name !== user.email ? user.name : profileNameFromEmail(user.email);
+    const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part.charAt(0).toLocaleUpperCase()).join("") || "A";
+    const panel = openOverlay(`<div class="panel-heading"><div><small>AUTO NEED</small><h2>${profileText.title}</h2></div><button class="close-button" data-close aria-label="Close">×</button></div><div class="profile-summary"><span class="profile-avatar" aria-hidden="true">${escapeHtml(initials)}</span><div><strong>${escapeHtml(displayName)}</strong><small>${escapeHtml(user.email)}</small></div></div><form class="form-stack profile-form" data-profile-form><label>${profileText.name}<input name="name" type="text" autocomplete="name" value="${escapeHtml(displayName)}" required maxlength="80"></label><label>${profileText.email}<input name="email" type="email" value="${escapeHtml(user.email)}" readonly></label><label>${profileText.phone}<input name="phone" type="tel" autocomplete="tel" value="${escapeHtml(user.phone || "")}" maxlength="32"></label><button class="gold-button full-button" type="submit">${profileText.save}</button></form><button class="link-btn profile-logout" type="button" data-auth-action="logout">${profileText.logout}</button>`);
+    panel.addEventListener("submit", event => {
+      if (!event.target.matches("[data-profile-form]")) return;
+      event.preventDefault();
+      const data = new FormData(event.target);
+      user = { ...user, name: String(data.get("name") || "").trim(), phone: String(data.get("phone") || "").trim() };
+      put("user", user);
+      toast(profileText.saved);
+      panel.querySelector(".profile-summary strong").textContent = user.name;
+      panel.querySelector(".profile-avatar").textContent = user.name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part.charAt(0).toLocaleUpperCase()).join("");
+    });
+    panel.addEventListener("click", event => { if (event.target.closest("[data-auth-action='logout']")) { user=null; put("user",null); panel.closest(".overlay").remove(); toast(t.logout); } });
+    return;
+  }
+  const panel = openOverlay(`<div class="panel-heading"><div><small>AUTO NEED</small><h2>${t.title}</h2></div><button class="close-button" data-close>×</button></div><div data-auth-content></div>`);
+  let mode="login",email="",resetToken="";
+  const render=(message="")=>{
+    const content=panel.querySelector("[data-auth-content]");
+    const tabs=`<div class="auth-tabs"><button type="button" data-auth-action="login" class="${mode==="login"?"active":""}">${t.login}</button><button type="button" data-auth-action="register" class="${mode==="register"?"active":""}">${t.register}</button></div>`;
+    if(mode==="login"||mode==="register") content.innerHTML=`${tabs}<form class="form-stack" data-auth-form><label>${t.email}<input name="email" type="email" autocomplete="email" value="${escapeHtml(email)}" required></label><label>${t.password}<input name="password" type="password" autocomplete="${mode==="login"?"current-password":"new-password"}" minlength="8" required></label><button class="gold-button full-button" type="submit">${mode==="register"?t.createAccount:t.login}</button>${mode==="login"?`<button type="button" class="link-btn" data-auth-action="forgot">${t.forgot}</button>`:""}</form>`;
+    else if(mode==="forgot-email") content.innerHTML=`<form class="form-stack" data-auth-form><p>${t.forgot}</p><label>${t.email}<input name="email" type="email" autocomplete="email" value="${escapeHtml(email)}" required></label><button class="gold-button full-button" type="submit">${t.sendCode}</button><button type="button" class="link-btn" data-auth-action="back">${t.back}</button></form>`;
+    else if(mode==="forgot-code") content.innerHTML=`<form class="form-stack" data-auth-form><p>${t.emailSent}</p><label>${t.email}<input name="email" type="email" value="${escapeHtml(email)}" readonly></label><label>${t.code}<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></label><button class="gold-button full-button" type="submit">${t.verifyCode}</button><button type="button" class="link-btn" data-auth-action="back">${t.back}</button></form>`;
+    else content.innerHTML=`<form class="form-stack" data-auth-form><label>${t.newPassword}<input name="password" type="password" minlength="8" autocomplete="new-password" required></label><label>${t.confirmPassword}<input name="confirmPassword" type="password" minlength="8" autocomplete="new-password" required></label><button class="gold-button full-button" type="submit">${t.resetPassword}</button></form>`;
+    enhancePasswordInputs(content);
+    if(message) content.insertAdjacentHTML("beforeend",`<p class="auth-message" role="status">${escapeHtml(message)}</p>`);
+  };
+  render();
+  panel.addEventListener("click",event=>{
+    const action=event.target.closest("[data-auth-action]")?.dataset.authAction;
+    if(event.target.closest("[data-close]")){panel.closest(".overlay").remove();return;}
+    if(action==="logout"){user=null;put("user",null);panel.closest(".overlay").remove();toast(t.logout);return;}
+    if(action==="login"||action==="register"){mode=action;render();}
+    if(action==="forgot"){email=panel.querySelector('[name="email"]')?.value.trim()||"";mode="forgot-email";render();}
+    if(action==="back"){mode="login";render();}
+  });
+  panel.addEventListener("submit",async event=>{
+    const form=event.target.closest("[data-auth-form]");if(!form)return;event.preventDefault();
+    const data=Object.fromEntries(new FormData(form));email=String(data.email||email).trim().toLowerCase();
+    const submit=form.querySelector("button[type='submit']");if(submit)submit.disabled=true;
+    try{
+      let response,result;
+      if(mode==="login"||mode==="register"){
+        response=await fetch(`/api/auth/${mode}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password:data.password})});result=await response.json();if(!response.ok)throw new Error(result.error||"SERVER_ERROR");
+        const savedProfile = get("user", null);
+        const sameUser = savedProfile?.email === result.user.email;
+        user={...(sameUser ? savedProfile : {}),email:result.user.email,name:sameUser && savedProfile.name && savedProfile.name !== savedProfile.email ? savedProfile.name : profileNameFromEmail(result.user.email),phone:sameUser ? (savedProfile.phone || "") : ""};put("user",user);panel.closest(".overlay").remove();if(mode==="register")openAuthV2();else toast(t.login);return;
+      }
+      if(mode==="forgot-email"){
+        response=await fetch("/api/auth/password/forgot",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});result=await response.json();if(!response.ok)throw new Error(result.error||"SERVER_ERROR");mode="forgot-code";render(t.emailSent);return;
+      }
+      if(mode==="forgot-code"){
+        response=await fetch("/api/auth/password/verify-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,code:data.code})});result=await response.json();if(!response.ok)throw new Error(result.error||"INVALID_CODE");resetToken=result.resetToken;mode="forgot-new";render();return;
+      }
+      if(data.password!==data.confirmPassword)throw new Error("PASSWORD_MISMATCH");
+      response=await fetch("/api/auth/password/reset",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,resetToken,password:data.password})});result=await response.json();if(!response.ok)throw new Error(result.error||"SERVER_ERROR");mode="login";render(t.passwordChanged);
+    }catch(error){
+      const messages={INVALID_EMAIL:t.invalidEmail,INVALID_PASSWORD:t.weakPassword,INVALID_CREDENTIALS:t.invalidCredentials,EMAIL_EXISTS:t.emailExists,EMAIL_NOT_CONFIGURED:t.emailConfig,EMAIL_DELIVERY_FAILED:t.serverError,CODE_EXPIRED:t.codeExpired,INVALID_CODE:t.invalidCode,INVALID_RESET_TOKEN:t.codeExpired,RESET_EXPIRED:t.codeExpired,TRY_LATER:t.tryLater,TOO_MANY_ATTEMPTS:t.tryLater,PASSWORD_MISMATCH:t.passwordMismatch,SERVER_ERROR:t.serverError};render(messages[error.message]||t.serverError);
+    }
+  });
+}
+
 function openAuth() {
   const panel = openOverlay(`<div class="panel-heading"><div><small>AUTO NEED</small><h2>Добро пожаловать</h2></div><button class="close-button" data-close>×</button></div><form class="form-stack" data-auth-form><label>Номер телефона<input name="phone" type="tel" required></label><label>Пароль<input name="password" type="password" required></label><button class="gold-button">Войти</button></form>`);
   panel.querySelector("[data-auth-form]").addEventListener("submit", (event) => { event.preventDefault(); user = {phone: new FormData(event.currentTarget).get("phone")}; put("user", user); panel.closest(".overlay").remove(); toast("Вы вошли в аккаунт"); });
@@ -377,7 +506,8 @@ function openAuth() {
 document.querySelectorAll("[data-add]").forEach((button) => button.addEventListener("click", () => addCart(button.dataset.add)));
 document.querySelectorAll("[data-cart]").forEach((button) => button.addEventListener("click", openCart));
 document.querySelectorAll("[data-wishlist]").forEach((button) => button.addEventListener("click", openWishlist));
-document.querySelectorAll("[data-auth]").forEach((button) => button.addEventListener("click", openAuth));
+document.querySelectorAll("[data-auth]").forEach((button) => button.addEventListener("click", openAuthV2));
+document.querySelectorAll("[data-settings]").forEach((button) => button.addEventListener("click", openSettings));
 // Admin panel is accessible only via /admin URL — no buttons in header or footer.
 function closeLanguageMenu() {
   document.querySelectorAll(".language-menu").forEach((menu) => menu.remove());
